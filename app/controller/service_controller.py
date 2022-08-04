@@ -41,8 +41,8 @@ def home(current_user):
     return redirect(os.getenv('failed_url'))
 
 
-@app.route("/login")
-def login():
+@app.route("/google-login")
+def google_login():
     # if current_user:
     #     return redirect(os.getenv('success_url'))
     if not google.authorized:
