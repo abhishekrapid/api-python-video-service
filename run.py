@@ -10,7 +10,8 @@ from app.controller.service_controller import api
 #logging.basicConfig(level=logging.DEBUG)
 
 #app.logger.setLevel(logging.INFO)
-app.config['SECRET_KEY'] = "gptmwojm13uxinoe3e3r3!"
+#app.config['SECRET_KEY'] = "gptmwojm13uxinoe3e3r3!"
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 # register the api
 app.register_blueprint(api)
