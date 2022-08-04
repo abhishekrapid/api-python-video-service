@@ -13,7 +13,8 @@ from extensions import (
     timedelta
 )
 from app.models.query_builder import (
-    fetch_user
+    fetch_user,
+    insert_user
 
 )
 from app.service.auth_middleware import token_required_redirect
@@ -51,4 +52,34 @@ def login():
         resp = resp.json()
         if fetch_user(resp['id']):
             return redirect(os.getenv('success_url'))
+    return redirect(os.getenv('failed_url'))
+
+
+@app.route('/google/callback')
+def google_callback():
+    response = {
+        "success": False,
+        "message": "Invalid parameters",
+        "token": ""
+    }
+    resp = google.get("oauth2/v2/userinfo")
+    if resp.ok:
+        resp = resp.json()
+        session['user_id'] = resp['id']
+        user_info = {
+            'user_id': resp['id'],
+            'profile_url': resp['picture'],
+            'user_name': resp['name'],
+            'email': resp['email'],
+            'active': True
+        }
+        insert_user(user_info)
+        token = jwt.encode({
+            'user_id': user_info['user_id'],
+            'access_type': fetch_user(user_info['user_id'])['access_type'],
+            'exp': datetime.utcnow() + timedelta(hours=1)
+        }, app.config['SECRET_KEY'], "HS256")
+        print(token)
+        return redirect(f"os.getenv('success_url')/?token={token}")
+
     return redirect(os.getenv('failed_url'))
