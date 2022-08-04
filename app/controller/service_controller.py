@@ -16,7 +16,6 @@ from app.models.query_builder import (
     fetch_user,
     insert_user,
     fetch_courses
-
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -90,8 +89,7 @@ def google_callback():
             'roles': fetch_user(user_info['id'])['roles'],
             'exp': datetime.utcnow() + timedelta(hours=1)
         }, app.config['SECRET_KEY'], "HS256")
-        print(token)
-        return redirect(f"{os.getenv('success_url')}/?token={token}")
+        return redirect(f"{os.getenv('success_url')}?token={token}")
 
     return redirect(os.getenv('failed_url'))
 
@@ -104,7 +102,6 @@ def courses(current_user):
         "message": "Something went wrong.",
         "items": []
     }
-    print(current_user)
     response_json['items'] = fetch_courses(current_user)
     response_json['status'] = 200
     response_json['message'] = 'ok'
