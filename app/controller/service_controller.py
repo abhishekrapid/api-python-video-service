@@ -43,15 +43,27 @@ def home(current_user):
 
 @app.route("/google-login")
 def google_login():
-    # if current_user:
-    #     return redirect(os.getenv('success_url'))
     if not google.authorized:
         return redirect(url_for("google.login"))
     resp = google.get("oauth2/v2/userinfo")
     if resp.ok:
         resp = resp.json()
-        if fetch_user(resp['id']):
-            return redirect(os.getenv('success_url'))
+        session['user_id'] = resp['id']
+        user_info = {
+            'user_id': resp['id'],
+            'profile_url': resp['picture'],
+            'user_name': resp['name'],
+            'email': resp['email'],
+            'active': True
+        }
+        insert_user(user_info)
+        token = jwt.encode({
+            'user_id': user_info['user_id'],
+            'access_type': fetch_user(user_info['user_id'])['access_type'],
+            'exp': datetime.utcnow() + timedelta(hours=1)
+        }, app.config['SECRET_KEY'], "HS256")
+        print(token)
+        return redirect(f"{os.getenv('success_url')}/?token={token}")
     return redirect(os.getenv('failed_url'))
 
 
@@ -80,6 +92,6 @@ def google_callback():
             'exp': datetime.utcnow() + timedelta(hours=1)
         }, app.config['SECRET_KEY'], "HS256")
         print(token)
-        return redirect(f"os.getenv('success_url')/?token={token}")
+        return redirect(f"{os.getenv('success_url')}/?token={token}")
 
     return redirect(os.getenv('failed_url'))
