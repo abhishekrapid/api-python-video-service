@@ -1,6 +1,7 @@
 from extensions import (
     os,
-    pymongo
+    pymongo,
+    datetime
 )
 
 client = pymongo.MongoClient(os.getenv('mongodb_endpoint'))
@@ -9,17 +10,17 @@ client = pymongo.MongoClient(os.getenv('mongodb_endpoint'))
 def user_exists(user_id):
     db = client['user']
     info = db['user_info']
-    return info.find_one({'user_id': user_id})
+    return info.find_one({'id': user_id})
 
 
 def insert_user(data):
-    if not user_exists(data['user_id']):
+    if not user_exists(data['id']):
         db = client['user']
         info = db['user_info']
         data['createAt'] = datetime.now()
-        data['access_type'] = ['user']
+        data['roles'] = ['user']
         info.update_one(
-            {"user_id": data['user_id']},
+            {"id": data['id']},
             {"$set": data},
             upsert=True
         )
@@ -29,7 +30,33 @@ def fetch_user(user_id):
     info = db['user_info']
     return info.find_one(
         {
-            'user_id': user_id,
+            'id': user_id,
             'active': True
         }
+    )
+
+
+def fetch_courses(user_data):
+    db = client['courses']
+    info = db['course']
+    if 'admin' in user_data['roles']:
+        query = {}
+    else:
+        query = {
+            'active': True
+        }
+    return list(
+        info.find(
+            query,
+            {
+                "_id": {
+                    "$toString": "$_id"
+                },
+                "title": 1,
+                "category": 1,
+                "active": 1,
+                "description": 1,
+                "url": 1
+            }
+        )
     )
