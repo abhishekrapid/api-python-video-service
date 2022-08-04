@@ -63,7 +63,7 @@ def google_login():
         insert_user(user_info)
         token = jwt.encode({
             'id': user_info['id'],
-            'roles': fetch_user(user_info['id'])['access_type'],
+            'roles': fetch_user(user_info['id'])['roles'],
             'exp': datetime.utcnow() + timedelta(hours=1)
         }, app.config['SECRET_KEY'], "HS256")
         print(token)
@@ -87,7 +87,7 @@ def google_callback():
         insert_user(user_info)
         token = jwt.encode({
             'id': user_info['id'],
-            'roles': fetch_user(user_info['id'])['access_type'],
+            'roles': fetch_user(user_info['id'])['roles'],
             'exp': datetime.utcnow() + timedelta(hours=1)
         }, app.config['SECRET_KEY'], "HS256")
         print(token)
