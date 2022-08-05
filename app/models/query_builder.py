@@ -27,6 +27,7 @@ def insert_user(data):
             upsert=True
         )
 
+
 def fetch_user(user_id):
     db = client['user']
     info = db['user_info']
@@ -88,6 +89,35 @@ def fetch_course(course_id, roles):
                 "active": 1,
                 "description": 1,
                 "url": 1
+            }
+        )
+    )
+
+
+def fetch_videos(course_id, roles):
+    db = client['courses']
+    info = db['course_detail']
+    if 'admin' in roles:
+        query = {
+            'course_id': course_id
+        }
+    else:
+        query = {
+            'course_id': course_id,
+            'active': True
+        }
+    return list(
+        info.find(
+            query,
+            {
+                "_id": {
+                    "$toString": "$_id"
+                },
+                "title": 1,
+                "video_path": 1,
+                "active": 1,
+                "description": 1,
+                "createdAt": 1
             }
         )
     )

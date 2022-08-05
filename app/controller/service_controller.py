@@ -16,7 +16,8 @@ from app.models.query_builder import (
     fetch_user,
     insert_user,
     fetch_courses,
-    fetch_course
+    fetch_course,
+    fetch_videos
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -123,3 +124,15 @@ def get_course(current_user, course_id):
     return jsonify(response_json)
 
 
+@app.route("/courses/<course_id>/videos", methods=["GET"])
+@token_required_json
+def get_videos(current_user, course_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    response_json['items'] = fetch_videos(course_id, current_user['roles'])
+    response_json['status'] = 200
+    response_json['message'] = 'ok'
+    return jsonify(response_json)
