@@ -15,7 +15,8 @@ from extensions import (
 from app.models.query_builder import (
     fetch_user,
     insert_user,
-    fetch_courses
+    fetch_courses,
+    fetch_course
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -94,9 +95,9 @@ def google_callback():
     return redirect(os.getenv('failed_url'))
 
 
-@api.route('/courses')
+@api.route('/courses', methods=["GET"])
 @token_required_json
-def courses(current_user):
+def get_courses(current_user):
     response_json = {
         "status": 404,
         "message": "Something went wrong.",
@@ -106,3 +107,19 @@ def courses(current_user):
     response_json['status'] = 200
     response_json['message'] = 'ok'
     return jsonify(response_json)
+
+
+@app.route("/courses/<course_id>", methods=["GET"])
+@token_required_json
+def get_course(current_user, course_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    response_json['items'] = fetch_course(course_id, current_user['roles'])
+    response_json['status'] = 200
+    response_json['message'] = 'ok'
+    return jsonify(response_json)
+
+

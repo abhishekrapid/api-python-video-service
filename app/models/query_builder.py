@@ -3,6 +3,8 @@ from extensions import (
     pymongo,
     datetime
 )
+from bson.objectid import ObjectId
+
 
 client = pymongo.MongoClient(os.getenv('mongodb_endpoint'))
 
@@ -43,6 +45,35 @@ def fetch_courses(user_data):
         query = {}
     else:
         query = {
+            'active': True
+        }
+    return list(
+        info.find(
+            query,
+            {
+                "_id": {
+                    "$toString": "$_id"
+                },
+                "title": 1,
+                "category": 1,
+                "active": 1,
+                "description": 1,
+                "url": 1
+            }
+        )
+    )
+
+
+def fetch_course(course_id, roles):
+    db = client['courses']
+    info = db['course']
+    if 'admin' in roles:
+        query = {
+            '_id': ObjectId(course_id)
+        }
+    else:
+        query = {
+            '_id': ObjectId(course_id),
             'active': True
         }
     return list(

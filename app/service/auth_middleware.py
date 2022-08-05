@@ -55,7 +55,7 @@ def token_required_json(f):
             current_user = fetch_user(data["id"])
             if current_user is None:
                 return jsonify({
-                    'message': 'Unauthorized user !!'
+                    'message': 'Unauthorized'
                 }), 401
             if not current_user["active"]:
                 abort(403)
