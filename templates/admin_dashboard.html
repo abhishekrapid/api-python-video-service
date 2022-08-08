@@ -7,8 +7,8 @@
     <body>
         {% include '/header.html' %}
         <!-- Modal -->
-        <div class="modal fade" id="managePopup" tabindex="-1" role="dialog" aria-labelledby="managePopupCenterTitle">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal fade" id="managePopup" tabindex="-1" role="dialog" aria-labelledby="managePopupLabel" aria-hidden="true">
+            <div class="modal-dialog " role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="managePopupLongTitle">Modal title</h5>
@@ -26,6 +26,32 @@
                 </div>
             </div>
         </div>
+
+<!--        &lt;!&ndash; Button trigger modal &ndash;&gt;-->
+<!--        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">-->
+<!--          Launch demo modal-->
+<!--        </button>-->
+
+<!--        &lt;!&ndash; Modal &ndash;&gt;-->
+<!--        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">-->
+<!--          <div class="modal-dialog" role="document">-->
+<!--            <div class="modal-content">-->
+<!--              <div class="modal-header">-->
+<!--                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>-->
+<!--                <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                  <span aria-hidden="true">&times;</span>-->
+<!--                </button>-->
+<!--              </div>-->
+<!--              <div class="modal-body">-->
+<!--                ...-->
+<!--              </div>-->
+<!--              <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                <button type="button" class="btn btn-primary">Save changes</button>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
 
         <div class="container mt-3">
             <h2 style="text-align:center;">Admin Dashboard</h2>
@@ -200,30 +226,59 @@
                 </div>
                 <div class="form-group">
                     <label for="active" class="col-form-label">Active:</label>
-                   <!-- <select id="active">
+                    <select id="active">
                         <option value="true">On</option>
                         <option value="false">OFF</option>
-                    </select>-->
-                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">
+                    </select>
+<!--                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">-->
                 </div>
                 <div class="form-group">
                     <label for="roles" class="col-form-label">Roles:</label>
-                    <input type="text" class="form-control" id="roles" value="${$(this).data('roles')}">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="roles" id="user_checkbox" value="user">
+                        <label class="custom-control-label" for="roles">User</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="roles" id="staff_checkbox" value="staff">
+                        <label class="custom-control-label" for="roles">Staff</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="roles" id="admin_checkbox" value="admin">
+                        <label class="custom-control-label" for="roles">Admin</label>
+                    </div>
                 </div>
+<!--                <div class="form-group">-->
+<!--                    <label for="roles" class="col-form-label">Roles:</label>-->
+
+<!--                    <input type="text" class="form-control" id="roles" value="${$(this).data('roles')}">-->
+<!--                </div>-->
             `
             $('.modalPopupSaveButton').removeAttr('id');
             $('.modalPopupSaveButton').html('Update');
             $('.modalPopupSaveButton').attr('id', 'update_user_button');
             $('#manage_popup_body').empty().append(body_div);
+            $('#active').val($(this).data('active').toString());
+            var roles_array = $(this).data('roles').split(',');
+            for(i=0; i<roles_array.length; i++){
+                $(`#${roles_array[i]}_checkbox`).prop("checked", true);
+            }
             $('#managePopup').modal('show');
         });
 
         $(document).on("click", "#update_user_button", function (event) {
             var form_data = new FormData();
+            var roles = [];
+            $("input:checkbox[name=roles]:checked").each(function() {
+                roles.push($(this).val());
+            });
+            if(roles.length == 0){
+                alert('Please fill the missing field.');
+                return false;
+            }
+            form_data.append("roles", roles);
             form_data.append("active", $('#active').val());
-            form_data.append("roles", $('#roles').val());
             $.ajax({
-                url: `/manage/user/${$('#user_id').val()}` , // point to server-side URL
+                url: `/manage/users/${$('#user_id').val()}` , // point to server-side URL
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -232,7 +287,19 @@
                 success: function (data) {
                     $('#managePopup').modal('hide');
                     $(`#active_${$('#user_id').val()}`).html($('#active').val());
-                    $(`#roles_${$('#user_id').val()}`).html($('#roles').val());
+                    roles_data = ``
+                    if (roles.length == 1){
+                        roles_data += roles;
+                    }
+                    else{
+                        for(i=0; i<roles.length; i++){
+                            roles_data += ',';
+                            roles_data += roles[i];
+                        }
+                        roles_data = roles_data.slice(1)
+                    }
+
+                    $(`#roles_${$('#user_id').val()}`).html(roles_data);
                     console.table(data);
                 },
                 error: function (data){
@@ -284,7 +351,11 @@
                     <input type="text" class="form-control" id="description">
                 </div>
                 <label for="active" class="col-form-label">Active:</label>
-                    <input type="text" class="form-control" id="active">
+                <select id="active">
+                    <option value="true">On</option>
+                    <option value="false">OFF</option>
+                </select>
+<!--                    <input type="text" class="form-control" id="active">-->
                 <div class="form-group">
                     <label for="cover-image" class="col-form-label">Cover Image:</label>
                     <input type="text" class="form-control" id="cover-image">
@@ -407,7 +478,11 @@
                     <input type="text" class="form-control" id="description" value="${$(this).data('description')}">
                 </div>
                 <label for="active" class="col-form-label">Active:</label>
-                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">
+                <select id="active">
+                    <option value="true">On</option>
+                    <option value="false">OFF</option>
+                </select>
+<!--                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">-->
                 <div class="form-group">
                     <label for="cover-image" class="col-form-label">Cover Image:</label>
                     <input type="text" class="form-control" id="cover-image" value="${$(this).data('image')}">
@@ -419,6 +494,7 @@
             $('.modalPopupSaveButton').attr('id', 'update_course_button');
             $('#manage_popup_body').empty().append(body_div);
             $('#categories').val($(this).data('category'));
+            $('#active').val($(this).data('active').toString());
             $('#managePopup').modal('show');
         });
 

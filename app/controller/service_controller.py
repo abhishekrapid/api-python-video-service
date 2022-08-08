@@ -184,7 +184,7 @@ def update_manage_detail(current_user, manage_type, object_id):
     if 'admin' in current_user['roles']:
         if 'users' in manage_type:
             user_data = request.form.to_dict()
-            user_data['active'] = True if user_data['active'].lower == 'true' else False
+            user_data['active'] = True if user_data['active'].lower() == 'true' else False
             user_data['roles'] = user_data['roles'].split(',')
             response_json['items'] = update_user(object_id, user_data)
             response_json['status'] = 200
