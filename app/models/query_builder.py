@@ -59,7 +59,9 @@ def fetch_courses(user_data):
                 "category": 1,
                 "active": 1,
                 "description": 1,
-                "url": 1
+                "cover_image": 1,
+                "createAt": 1,
+                "updateAt": 1
             }
         )
     )
@@ -88,7 +90,9 @@ def fetch_course(course_id, roles):
                 "category": 1,
                 "active": 1,
                 "description": 1,
-                "url": 1
+                "cover_image": 1,
+                "createAt": 1,
+                "updateAt": 1
             }
         )
     )
@@ -121,3 +125,57 @@ def fetch_videos(course_id, roles):
             }
         )
     )
+
+
+def fetch_users():
+    db = client['user']
+    info = db['user_info']
+    return list(
+        info.find(
+            {},
+            {
+                '_id': 0
+            }
+        )
+    )
+
+
+def update_user(user_id, user_data):
+    db = client['user']
+    info = db['user_info']
+    info.update_one(
+        {
+            'id': user_id
+        },
+        {
+            "$set": user_data
+        }
+    )
+
+
+def set_course(course_data):
+    db = client['courses']
+    info = db['course']
+    course_data['createAt'] = datetime.now()
+    course_data['updateAt'] = datetime.now()
+    info.insert_one(course_data)
+
+
+def update_course(course_id, course_data):
+    db = client['courses']
+    info = db['course']
+    course_data['updateAt'] = datetime.now()
+    info.update_one(
+        {
+            '_id': ObjectId(course_id)
+        },
+        {
+            "$set": course_data
+        }
+    )
+
+
+def delete_course(course_id):
+    db = client['courses']
+    info = db['course']
+    info.delete_one({'_id': ObjectId(course_id)})

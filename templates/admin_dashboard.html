@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Manage</title>
+    </head>
+    <body>
+        {% include '/header.html' %}
+        <!-- Modal -->
+        <div class="modal fade" id="managePopup" tabindex="-1" role="dialog" aria-labelledby="managePopupCenterTitle">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="managePopupLongTitle">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="manage_popup_body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary modalPopupSaveButton">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-3">
+            <h2 style="text-align:center;">Admin Dashboard</h2>
+            <div class="album py-5 bg-light">
+                <div class="container">
+                    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3" id="course_div">
+                        <div class="feature col">
+                            <div class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3">
+<!--                                <img class="bd-placeholder-img card-img-top" style="width:380px; height:300px;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTawwiBPXjCEAVE55spQ0LfCEqDsc6WBfTL8Q&amp;usqp=CAU" alt="Card image">-->
+                            </div>
+                            <h2>Users</h2>
+                            <a data-type="users" style="cursor:pointer;" class="icon-link d-inline-flex align-items-center manage_select">
+                                View User
+                                <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
+                            </a>
+                        </div>
+                        <div class="feature col">
+                            <div class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3">
+<!--                                <img class="bd-placeholder-img card-img-top" style="width:380px; height:300px;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTawwiBPXjCEAVE55spQ0LfCEqDsc6WBfTL8Q&amp;usqp=CAU" alt="Card image">-->
+                            </div>
+                            <h2>Courses</h2>
+                            <a data-type="courses" style="cursor:pointer;" class="icon-link d-inline-flex align-items-center manage_select">
+                                View Course
+                                <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
+                            </a>
+                        </div>
+<!--                        <div class="feature col">-->
+<!--                            <div class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3">-->
+<!--&lt;!&ndash;                                <img class="bd-placeholder-img card-img-top" style="width:380px; height:300px;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTawwiBPXjCEAVE55spQ0LfCEqDsc6WBfTL8Q&amp;usqp=CAU" alt="Card image">&ndash;&gt;-->
+<!--                            </div>-->
+<!--                            <h2>Categories</h2>-->
+<!--                            <a data-type="categories" style="cursor:pointer;" class="icon-link d-inline-flex align-items-center manage_select">-->
+<!--                                View Categories-->
+<!--                                <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                        <div class="feature col">-->
+<!--                            <div class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3">-->
+<!--&lt;!&ndash;                                <img class="bd-placeholder-img card-img-top" style="width:380px; height:300px;" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTawwiBPXjCEAVE55spQ0LfCEqDsc6WBfTL8Q&amp;usqp=CAU" alt="Card image">&ndash;&gt;-->
+<!--                            </div>-->
+<!--                            <h2>Instructors</h2>-->
+<!--                            <a data-type="instructor" style="cursor:pointer;" class="icon-link d-inline-flex align-items-center manage_select">-->
+<!--                                View Instructors-->
+<!--                                <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>-->
+<!--                            </a>-->
+<!--                        </div>-->
+                    </div>
+                </div>
+            </div>
+
+            <div class="container" id="change_div">
+<!--                <div class="spinner-border"></div>-->
+            </div>
+
+        </div>
+
+    </body>
+
+    <script>
+        $(document).on("click", ".manage_select", function (event) {
+            var manage_type = $(this).data("type");
+            $.ajax({
+                url: `/manage/${manage_type}`,
+                type: 'GET',
+                success: function (data) {
+                    console.log(data);
+                    var body_div = ``
+                    if(manage_type == 'users'){
+                        body_div = `
+                            <h3 style="text-align:center;">Users</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Profile Url</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Active</th>
+                                        <th scope="col">CreateAt</th>
+                                        <th scope="col">Roles</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `
+                        for(var i=0; i<data['items'].length; i++){
+                            body_div += `
+                            <tr>
+                                <td scope="row">${data['items'][i]['id']}</td>
+                                <td scope="row">${data['items'][i]['name']}</td>
+                                <td scope="row" title="${data['items'][i]['profile_url']}">${data['items'][i]['profile_url'].slice(0, 20)}...</td>
+                                <td scope="row">${data['items'][i]['email']}</td>
+                                <td scope="row" id="active_${data['items'][i]['id']}">${data['items'][i]['active']}</td>
+                                <td scope="row">${data['items'][i]['createAt']}</td>
+                                <td scope="row" id="roles_${data['items'][i]['id']}">${data['items'][i]['roles']}</td>
+                                <td scope="row"><a class="edit-user" style="cursor: pointer;" data-id="${data['items'][i]['id']}" data-roles="${data['items'][i]['roles']}" data-active="${data['items'][i]['active']}" data-email="${data['items'][i]['email']}" data-name="${data['items'][i]['name']}" data-profile_url="${data['items'][i]['profile_url']}"><i class="fas fa-pen"></i></a></td>
+                            </tr>`
+                        }
+                        body_div += `
+                                </tbody>
+                            </table>
+                        `
+                    }
+                    else if(manage_type == 'courses'){
+                        body_div = `
+                            <h3 style="text-align:center;">Courses</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Category</th>
+                                        <th scope="col">Title</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Active</th>
+                                        <th scope="col">Cover Image</th>
+                                        <th scope="col">CreateAt</th>
+                                        <th scope="col">UpdateAt</th>
+                                        <th scope="col" colspan="2">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `
+                        for(var i=0; i<data['items'].length; i++){
+
+                            body_div += `
+                            <tr id="tr_${data['items'][i]['_id']}">
+                                <td scope="row">${data['items'][i]['_id']}</td>
+                                <td scope="row">${data['items'][i]['category']}</td>
+                                <td scope="row">${data['items'][i]['title']}</td>
+                                <td scope="row">${data['items'][i]['description']}</td>
+                                <td scope="row">${data['items'][i]['active']}</td>
+                                <td scope="row" title="${data['items'][i]['cover_image']}">${data['items'][i]['cover_image'].slice(0, 20)}...</td>
+                                <td scope="row">${data['items'][i]['createAt']}</td>
+                                <td scope="row">${data['items'][i]['updateAt']}</td>
+                                <td scope="row"><a class="edit-course" style="cursor: pointer;" data-id="${data['items'][i]['_id']}" data-category="${data['items'][i]['category']}" data-title="${data['items'][i]['title']}" data-description="${data['items'][i]['description']}" data-active="${data['items'][i]['active']}" data-image="${data['items'][i]['cover_image']}"><i class="fas fa-pen"></i></a></td>
+                                <td scope="row"><a class="delete-course" style="cursor: pointer; color:red;" data-id="${data['items'][i]['_id']}"><i class="fas fa-trash"></i></a></td>
+                            </tr>`
+                        }
+                        body_div += `
+                                </tbody>
+                            </table>
+                            <div style="text-align:center;"><button id="add_course">Add new course </button></div>
+                        `
+                    }
+                    $(`#change_div`).empty().append(body_div);
+                },
+                error: function (data){
+                    body_div = `
+                        <h4>Something went wrong.</h4>
+                    `
+                    console.log('something went wrong.');
+                    $(`#change_div`).empty().append(body_div);
+                }
+            });
+        });
+
+        $(document).on("click", ".edit-user", function (event) {
+            $('#managePopupLongTitle').html('Update the user information.');
+            body_div = `
+                <input type="hidden" id="user_id" value="${$(this).data('id')}" readonly>
+                <div class="form-group">
+                    <img src="${$(this).data('profile_url')}">
+                </div>
+                <div class="form-group">
+                    <label for="user-name" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" id="user-name" value="${$(this).data('name')}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="col-form-label">Email:</label>
+                    <input type="text" class="form-control" id="email" value="${$(this).data('email')}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="active" class="col-form-label">Active:</label>
+                   <!-- <select id="active">
+                        <option value="true">On</option>
+                        <option value="false">OFF</option>
+                    </select>-->
+                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">
+                </div>
+                <div class="form-group">
+                    <label for="roles" class="col-form-label">Roles:</label>
+                    <input type="text" class="form-control" id="roles" value="${$(this).data('roles')}">
+                </div>
+            `
+            $('.modalPopupSaveButton').removeAttr('id');
+            $('.modalPopupSaveButton').html('Update');
+            $('.modalPopupSaveButton').attr('id', 'update_user_button');
+            $('#manage_popup_body').empty().append(body_div);
+            $('#managePopup').modal('show');
+        });
+
+        $(document).on("click", "#update_user_button", function (event) {
+            var form_data = new FormData();
+            form_data.append("active", $('#active').val());
+            form_data.append("roles", $('#roles').val());
+            $.ajax({
+                url: `/manage/user/${$('#user_id').val()}` , // point to server-side URL
+                cache: false,
+                contentType: false,
+                processData: false,
+                data:form_data,
+                type: 'PUT',
+                success: function (data) {
+                    $('#managePopup').modal('hide');
+                    $(`#active_${$('#user_id').val()}`).html($('#active').val());
+                    $(`#roles_${$('#user_id').val()}`).html($('#roles').val());
+                    console.table(data);
+                },
+                error: function (data){
+                    alert('Something went wrong.');
+                },
+            });
+        });
+
+        $(document).on("click", "#add_course", function (event) {
+            $('#managePopupLongTitle').html('Add new course.');
+            body_div = `
+                <div class="form-group">
+                    <label for="categories" class="col-form-label">Category:</label>
+                    <select id="categories">
+                        <option value="">Please select a category</option>
+                        <option value="AI-ML">AI-ML</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Blockchain">Blockchain</option>
+                        <option value="Business Analyst">Business Analyst</option>
+                        <option value="C++">C++</option>
+                        <option value="Cyber Security">Cyber Security</option>
+                        <option value="Designer">Designer</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="Discovery">Discovery</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Flask">Flask</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="HR">HR</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="PM">PM</option>
+                        <option value="Project Management">Project Management</option>
+                        <option value="Proposal Writing">Proposal Writing</option>
+                        <option value="Python">Python</option>
+                        <option value="QA">QA</option>
+                        <option value="Quality Analyst">Quality Analyst</option>
+                        <option value="Rust">Rust</option>
+                        <option value="Technical Copywriter">Technical Copywriter</option>
+                        <option value="Training">Training</option>
+                        <option value="Training &amp; Development">Training &amp; Development</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title" class="col-form-label">Title:</label>
+                    <input type="text" class="form-control" id="title">
+                </div>
+                <div class="form-group">
+                    <label for="description" class="col-form-label">Description:</label>
+                    <input type="text" class="form-control" id="description">
+                </div>
+                <label for="active" class="col-form-label">Active:</label>
+                    <input type="text" class="form-control" id="active">
+                <div class="form-group">
+                    <label for="cover-image" class="col-form-label">Cover Image:</label>
+                    <input type="text" class="form-control" id="cover-image">
+                </div>
+            `
+            $('.modalPopupSaveButton').removeAttr('id');
+            $('.modalPopupSaveButton').html('Save');
+            $('.modalPopupSaveButton').attr('id', 'add_course_button');
+            $('#manage_popup_body').empty().append(body_div);
+            $('#managePopup').modal('show');
+        });
+
+        $(document).on("click", "#add_course_button", function (event) {
+            var form_data = new FormData();
+            form_data.append("category", $('#categories').val());
+            form_data.append("title", $(`#title`).val());
+            form_data.append("active", $(`#active`).val());
+            form_data.append("description", $(`#description`).val());
+            form_data.append("cover_image", $(`#cover-image`).val());
+            $('#managePopup').modal('hide');
+            $.ajax({
+                url: '/manage/courses' , // point to server-side URL
+                cache: false,
+                contentType: false,
+                processData: false,
+                data:form_data,
+                type: 'POST',
+                success: function (data) {
+                    body_div = `
+                        <h3 style="text-align:center;">Courses</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Active</th>
+                                    <th scope="col">Cover Image</th>
+                                    <th scope="col">CreateAt</th>
+                                    <th scope="col">UpdateAt</th>
+                                    <th scope="col" colspan="2">Action</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                    `
+                    for(var i=0; i<data['items'].length; i++){
+                        body_div += `
+                            <tr id="tr_${data['items'][i]['_id']}">
+                                <td scope="row">${data['items'][i]['_id']}</td>
+                                <td scope="row">${data['items'][i]['category']}</td>
+                                <td scope="row">${data['items'][i]['title']}</td>
+                                <td scope="row">${data['items'][i]['description']}</td>
+                                <td scope="row">${data['items'][i]['active']}</td>
+                                <td scope="row" title="${data['items'][i]['cover_image']}">${data['items'][i]['cover_image'].slice(0, 20)}...</td>
+                                <td scope="row">${data['items'][i]['createAt']}</td>
+                                <td scope="row">${data['items'][i]['updateAt']}</td>
+                                <td scope="row"><a class="edit-course" style="cursor: pointer;" data-id="${data['items'][i]['_id']}" data-category="${data['items'][i]['category']}" data-title="${data['items'][i]['title']}" data-description="${data['items'][i]['description']}" data-active="${data['items'][i]['active']}" data-image="${data['items'][i]['cover_image']}"><i class="fas fa-pen"></i></a></td>
+                                <td scope="row"><a class="delete-course" style="cursor: pointer; color:red;" data-id="${data['items'][i]['_id']}"><i class="fas fa-trash"></i></a></td>
+                            </tr>`
+                    }
+                    body_div += `
+                            </tbody>
+                        </table>
+                        <div style="text-align:center;"><button id="add_course">Add new course </button></div>
+                    `
+                    $(`#change_div`).empty().append(body_div);
+                },
+                error: function (data){
+                    body_div = `
+                        <h4>Something went wrong.</h4>
+                    `
+                    console.log('something went wrong.');
+                    $(`#change_div`).empty().append(body_div);
+                }
+            });
+        });
+
+        $(document).on("click", ".edit-course", function (event) {
+            $('#managePopupLongTitle').html('Update the course information.');
+            body_div = `
+                <input type="hidden" id="course_id" value="${$(this).data('id')}" readonly>
+                <div class="form-group">
+                    <label for="categories" class="col-form-label">Category:</label>
+                    <select id="categories">
+                        <option value="">Please select a category</option>
+                        <option value="AI-ML">AI-ML</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Blockchain">Blockchain</option>
+                        <option value="Business Analyst">Business Analyst</option>
+                        <option value="C++">C++</option>
+                        <option value="Cyber Security">Cyber Security</option>
+                        <option value="Designer">Designer</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="Discovery">Discovery</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Flask">Flask</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="HR">HR</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="PM">PM</option>
+                        <option value="Project Management">Project Management</option>
+                        <option value="Proposal Writing">Proposal Writing</option>
+                        <option value="Python">Python</option>
+                        <option value="QA">QA</option>
+                        <option value="Quality Analyst">Quality Analyst</option>
+                        <option value="Rust">Rust</option>
+                        <option value="Technical Copywriter">Technical Copywriter</option>
+                        <option value="Training">Training</option>
+                        <option value="Training &amp; Development">Training &amp; Development</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title" class="col-form-label">Title:</label>
+                    <input type="text" class="form-control" id="title" value="${$(this).data('title')}">
+                </div>
+                <div class="form-group">
+                    <label for="description" class="col-form-label">Description:</label>
+                    <input type="text" class="form-control" id="description" value="${$(this).data('description')}">
+                </div>
+                <label for="active" class="col-form-label">Active:</label>
+                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">
+                <div class="form-group">
+                    <label for="cover-image" class="col-form-label">Cover Image:</label>
+                    <input type="text" class="form-control" id="cover-image" value="${$(this).data('image')}">
+                </div>
+
+            `
+            $('.modalPopupSaveButton').removeAttr('id');
+            $('.modalPopupSaveButton').html('Update');
+            $('.modalPopupSaveButton').attr('id', 'update_course_button');
+            $('#manage_popup_body').empty().append(body_div);
+            $('#categories').val($(this).data('category'));
+            $('#managePopup').modal('show');
+        });
+
+        $(document).on("click", "#update_course_button", function (event) {
+            $('#managePopup').modal('hide');
+            var form_data = new FormData();
+            form_data.append("categories", $('#categories').val());
+            form_data.append("title", $('#title').val());
+            form_data.append("description", $('#description').val());
+            form_data.append("active", $('#active').val());
+            form_data.append("cover-image", $('#cover-image').val());
+            $.ajax({
+                url: `/manage/courses/${$('#course_id').val()}` , // point to server-side URL
+                cache: false,
+                contentType: false,
+                processData: false,
+                data:form_data,
+                type: 'PUT',
+                success: function (data) {
+                    body_div = `
+                        <h3 style="text-align:center;">Courses</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Active</th>
+                                    <th scope="col">Cover Image</th>
+                                    <th scope="col">CreateAt</th>
+                                    <th scope="col">UpdateAt</th>
+                                    <th scope="col" colspan="2">Action</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                    `
+                    for(var i=0; i<data['items'].length; i++){
+                        body_div += `
+                            <tr id="tr_${data['items'][i]['_id']}">
+                                <td scope="row">${data['items'][i]['_id']}</td>
+                                <td scope="row">${data['items'][i]['category']}</td>
+                                <td scope="row">${data['items'][i]['title']}</td>
+                                <td scope="row">${data['items'][i]['description']}</td>
+                                <td scope="row">${data['items'][i]['active']}</td>
+                                <td scope="row" title="${data['items'][i]['cover_image']}">${data['items'][i]['cover_image'].slice(0, 20)}...</td>
+                                <td scope="row">${data['items'][i]['createAt']}</td>
+                                <td scope="row">${data['items'][i]['updateAt']}</td>
+                                <td scope="row"><a class="edit-course" style="cursor: pointer;" data-id="${data['items'][i]['_id']}" data-category="${data['items'][i]['category']}" data-title="${data['items'][i]['title']}" data-description="${data['items'][i]['description']}" data-active="${data['items'][i]['active']}" data-image="${data['items'][i]['cover_image']}"><i class="fas fa-pen"></i></a></td>
+                                <td scope="row"><a class="delete-course" style="cursor: pointer; color:red;" data-id="${data['items'][i]['_id']}"><i class="fas fa-trash"></i></a></td>
+                            </tr>`
+                    }
+                    body_div += `
+                            </tbody>
+                        </table>
+                        <div style="text-align:center;"><button id="add_course">Add new course </button></div>
+                    `
+                    $(`#change_div`).empty().append(body_div);
+                },
+                error: function (data){
+                    body_div = `
+                        <h4>Something went wrong.</h4>
+                    `
+                    console.log('something went wrong.');
+                    $(`#change_div`).empty().append(body_div);
+                },
+            });
+        });
+
+        $(document).on("click", ".delete-course", function (event) {
+            var course_id = $(this).data("id");
+            $('#managePopupLongTitle').html('Delete the course?');
+            body_div = `
+                <input type="hidden" id="course_id" value="${course_id}" readonly>
+                <p>This action will remove the course from our database. Would you like to continue?</p>
+            `
+            $('.modalPopupSaveButton').removeAttr('id');
+            $('.modalPopupSaveButton').html('Delete');
+            $('.modalPopupSaveButton').attr('id', 'delete_course_button');
+            $('#manage_popup_body').empty().append(body_div);
+            $('#managePopup').modal('show');
+        });
+
+        $(document).on("click", "#delete_course_button", function (event) {
+            $.ajax({
+                url: `/manage/courses/${$('#course_id').val()}` , // point to server-side URL
+                cache: false,
+                contentType: false,
+                processData: false,
+                type: 'DELETE',
+                success: function (data) {
+                    $('#managePopup').modal('hide');
+                    $(`#tr_${$('#course_id').val()}`).remove();
+                },
+                error: function (data){
+                    alert('Something went wrong.');
+                },
+            });
+        });
+    </script>
+</html>
+
+<!--
+requirement.txt
+boto3==1.24.37
+
+.env
+aws_storage_name = s3
+aws_region_name=ap-south-1
+aws_access_key_id=AKIATEBJLGP3F5W2OMHZ
+aws_secret_access_key=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
+aws_bucket=rapid-video-service
+video_provider=aws
+
+
+-->

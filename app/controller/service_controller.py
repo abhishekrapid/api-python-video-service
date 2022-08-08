@@ -17,7 +17,12 @@ from app.models.query_builder import (
     insert_user,
     fetch_courses,
     fetch_course,
-    fetch_videos
+    fetch_videos,
+    fetch_users,
+    update_user,
+    set_course,
+    update_course,
+    delete_course
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -57,7 +62,7 @@ def google_login():
         user_info = {
             'id': resp['id'],
             'profile_url': resp['picture'],
-            'user_name': resp['name'],
+            'name': resp['name'],
             'email': resp['email'],
             'active': True
         }
@@ -68,6 +73,7 @@ def google_login():
             'exp': datetime.utcnow() + timedelta(hours=1)
         }, app.config['SECRET_KEY'], "HS256")
         print(token)
+        session['current_user_token'] = token
         return redirect(f"{os.getenv('success_url')}/?token={token}")
     return redirect(os.getenv('failed_url'))
 
@@ -81,7 +87,7 @@ def google_callback():
         user_info = {
             'id': resp['id'],
             'profile_url': resp['picture'],
-            'user_name': resp['name'],
+            'name': resp['name'],
             'email': resp['email'],
             'active': True
         }
@@ -91,6 +97,7 @@ def google_callback():
             'roles': fetch_user(user_info['id'])['roles'],
             'exp': datetime.utcnow() + timedelta(hours=1)
         }, app.config['SECRET_KEY'], "HS256")
+        session['current_user_token'] = token
         return redirect(f"{os.getenv('success_url')}?token={token}")
 
     return redirect(os.getenv('failed_url'))
@@ -135,4 +142,93 @@ def get_videos(current_user, course_id):
     response_json['items'] = fetch_videos(course_id, current_user['roles'])
     response_json['status'] = 200
     response_json['message'] = 'ok'
+    return jsonify(response_json)
+
+
+@app.route("/admin")
+@token_required_redirect
+def get_admin_page(current_user):
+    if 'admin' in current_user['roles']:
+        return render_template('admin_dashboard.html', user_info=current_user)
+    return redirect('/')
+
+
+@app.route('/manage/<manage_type>')
+@token_required_json
+def get_manage(current_user, manage_type):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    if 'admin' in current_user['roles']:
+        if 'users' in manage_type:
+            response_json['items'] = fetch_users()
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+        elif 'courses' in manage_type:
+            response_json['items'] = fetch_courses(current_user)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+    return jsonify(response_json)
+
+
+@app.route('/manage/<manage_type>/<object_id>', methods=['PUT'])
+@token_required_json
+def update_manage_detail(current_user, manage_type, object_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    if 'admin' in current_user['roles']:
+        if 'users' in manage_type:
+            user_data = request.form.to_dict()
+            user_data['active'] = True if user_data['active'].lower == 'true' else False
+            user_data['roles'] = user_data['roles'].split(',')
+            response_json['items'] = update_user(object_id, user_data)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+        elif 'courses' in manage_type:
+            course_data = request.form.to_dict()
+            course_data['active'] = True if course_data['active'].lower() == 'true' else False
+            update_course(object_id, course_data)
+            response_json['items'] = fetch_courses(current_user)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+    return jsonify(response_json)
+
+
+@app.route('/manage/<manage_type>/', methods=['POST'])
+@token_required_json
+def post_manage(current_user, manage_type):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    if 'admin' in current_user['roles']:
+        if 'courses' in manage_type:
+            course_data = request.form.to_dict()
+            course_data['active'] = True if course_data['active'].lower() == 'true' else False
+            set_course(course_data)
+            response_json['items'] = fetch_courses(current_user)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+    return jsonify(response_json)
+
+
+@app.route('/manage/<manage_type>/<object_id>', methods=['DELETE'])
+@token_required_json
+def delete_manage_detail(current_user, manage_type, object_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    if 'admin' in current_user['roles']:
+        if 'courses' in manage_type:
+            delete_course(object_id)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
     return jsonify(response_json)
