@@ -112,7 +112,7 @@
         $(document).on("click", ".manage_select", function (event) {
             var manage_type = $(this).data("type");
             $.ajax({
-                url: `/manage/${manage_type}`,
+                url: `/${manage_type}`,
                 type: 'GET',
                 success: function (data) {
                     console.log(data);
@@ -276,7 +276,7 @@
             form_data.append("roles", roles);
             form_data.append("active", $('#active').val());
             $.ajax({
-                url: `/manage/users/${$('#user_id').val()}` , // point to server-side URL
+                url: `/users/${$('#user_id').val()}` , // point to server-side URL
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -380,7 +380,7 @@
             form_data.append("cover_image", $(`#cover-image`).val());
             $('#managePopup').modal('hide');
             $.ajax({
-                url: '/manage/courses' , // point to server-side URL
+                url: '/courses' , // point to server-side URL
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -514,7 +514,7 @@
             form_data.append("active", $('#active').val());
             form_data.append("cover-image", $('#cover-image').val());
             $.ajax({
-                url: `/manage/courses/${$('#course_id').val()}` , // point to server-side URL
+                url: `/courses/${$('#course_id').val()}` , // point to server-side URL
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -587,7 +587,7 @@
 
         $(document).on("click", "#delete_course_button", function (event) {
             $.ajax({
-                url: `/manage/courses/${$('#course_id').val()}` , // point to server-side URL
+                url: `/courses/${$('#course_id').val()}` , // point to server-side URL
                 cache: false,
                 contentType: false,
                 processData: false,

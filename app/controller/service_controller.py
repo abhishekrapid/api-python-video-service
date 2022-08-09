@@ -157,7 +157,7 @@ def get_admin_page(current_user):
     return redirect('/')
 
 
-@app.route('/manage/<manage_type>')
+@app.route('/<manage_type>')
 @token_required_json
 def get_manage(current_user, manage_type):
     response_json = {
@@ -177,7 +177,7 @@ def get_manage(current_user, manage_type):
     return jsonify(response_json)
 
 
-@app.route('/manage/<manage_type>/<object_id>', methods=['PUT'])
+@app.route('/<manage_type>/<object_id>', methods=['PUT'])
 @token_required_json
 def update_manage_detail(current_user, manage_type, object_id):
     response_json = {
@@ -209,47 +209,46 @@ def update_manage_detail(current_user, manage_type, object_id):
     return jsonify(response_json)
 
 
-@app.route('/manage/<manage_type>/', methods=['POST'])
+@app.route('/courses', methods=['POST'])
 @token_required_json
-def post_manage(current_user, manage_type):
+def post_manage(current_user):
     response_json = {
         "status": 404,
         "message": "Something went wrong.",
         "items": []
     }
     if 'admin' in current_user['roles']:
-        if 'courses' in manage_type:
-            if not request.form['categories'] or not request.form['title'] or not request.form['active'] or not request.form['description']:
-                response_json['message'] = 'Field is missing.'
-            else:
-                course_data = request.form.to_dict()
-                course_data['active'] = True if course_data['active'].lower() == 'true' else False
-                set_course(course_data)
-                response_json['items'] = fetch_courses(current_user)
-                response_json['status'] = 200
-                response_json['message'] = 'ok'
+        if not request.form['category'] or not request.form['title'] or not request.form['active'] or not request.form['description']:
+            response_json['message'] = 'Field is missing.'
+        else:
+            course_data = request.form.to_dict()
+            course_data['active'] = True if course_data['active'].lower() == 'true' else False
+            set_course(course_data)
+            response_json['items'] = fetch_courses(current_user)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
     return jsonify(response_json)
 
 
-@app.route('/manage/<manage_type>/<object_id>', methods=['DELETE'])
+@app.route('/courses/<object_id>', methods=['DELETE'])
 @token_required_json
-def delete_manage_detail(current_user, manage_type, object_id):
+def delete_manage_detail(current_user, object_id):
     response_json = {
         "status": 404,
         "message": "Something went wrong.",
         "items": []
     }
     if 'admin' in current_user['roles']:
-        if 'courses' in manage_type:
-            video_info = fetch_videos(object_id, current_user['roles'])
-            if video_info:
-                file_name_list = [{"Key": i['video_path']} for i in video_info]
-                vp = VideoProvider()
-                vp.delete_videos(file_name_list)
-                # [{"Key": "text/test7.txt"}, {"Key": "text/test8.txt"}]
-            delete_course(object_id)
-            response_json['status'] = 200
-            response_json['message'] = 'ok'
+        video_info = fetch_videos(object_id, current_user['roles'])
+        if video_info:
+
+            file_name_list = [{"Key": i['video_path']} for i in video_info]
+            vp = VideoProvider()
+            vp.delete_videos(file_name_list)
+            # [{"Key": "text/test7.txt"}, {"Key": "text/test8.txt"}]
+        delete_course(object_id)
+        response_json['status'] = 200
+        response_json['message'] = 'ok'
     return jsonify(response_json)
 
 
@@ -361,20 +360,12 @@ def post_video(current_user):
 
 @app.errorhandler(403)
 def forbidden(e):
-    return jsonify({
-        "message": "Forbidden",
-        "error": str(e),
-        "data": None
-    }), 403
+    return redirect('/')
 
 
 @app.errorhandler(404)
 def forbidden(e):
-    return jsonify({
-        "message": "Endpoint Not Found",
-        "error": str(e),
-        "data": None
-    }), 404
+    return redirect('/')
 
 
 @app.route('/logout')
