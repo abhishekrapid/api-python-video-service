@@ -22,11 +22,15 @@ from app.models.query_builder import (
     update_user,
     set_course,
     update_course,
-    delete_course
+    delete_course,
+    update_video_db,
+    delete_video_db,
+    fetch_video_by_id,
+    insert_video
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
-
+from app.service.video_provider import VideoProvider
 
 api = Blueprint('user', 'user')
 
@@ -183,19 +187,25 @@ def update_manage_detail(current_user, manage_type, object_id):
     }
     if 'admin' in current_user['roles']:
         if 'users' in manage_type:
-            user_data = request.form.to_dict()
-            user_data['active'] = True if user_data['active'].lower() == 'true' else False
-            user_data['roles'] = user_data['roles'].split(',')
-            response_json['items'] = update_user(object_id, user_data)
-            response_json['status'] = 200
-            response_json['message'] = 'ok'
+            if not request.form['active'] or not request.form['roles']:
+                response_json['message'] = 'Field is missing.'
+            else:
+                user_data = request.form.to_dict()
+                user_data['active'] = True if user_data['active'].lower() == 'true' else False
+                user_data['roles'] = user_data['roles'].split(',')
+                response_json['items'] = update_user(object_id, user_data)
+                response_json['status'] = 200
+                response_json['message'] = 'ok'
         elif 'courses' in manage_type:
-            course_data = request.form.to_dict()
-            course_data['active'] = True if course_data['active'].lower() == 'true' else False
-            update_course(object_id, course_data)
-            response_json['items'] = fetch_courses(current_user)
-            response_json['status'] = 200
-            response_json['message'] = 'ok'
+            if not request.form['categories'] or not request.form['title'] or not request.form['active'] or not request.form['description']:
+                response_json['message'] = 'Field is missing.'
+            else:
+                course_data = request.form.to_dict()
+                course_data['active'] = True if course_data['active'].lower() == 'true' else False
+                update_course(object_id, course_data)
+                response_json['items'] = fetch_courses(current_user)
+                response_json['status'] = 200
+                response_json['message'] = 'ok'
     return jsonify(response_json)
 
 
@@ -209,12 +219,15 @@ def post_manage(current_user, manage_type):
     }
     if 'admin' in current_user['roles']:
         if 'courses' in manage_type:
-            course_data = request.form.to_dict()
-            course_data['active'] = True if course_data['active'].lower() == 'true' else False
-            set_course(course_data)
-            response_json['items'] = fetch_courses(current_user)
-            response_json['status'] = 200
-            response_json['message'] = 'ok'
+            if not request.form['categories'] or not request.form['title'] or not request.form['active'] or not request.form['description']:
+                response_json['message'] = 'Field is missing.'
+            else:
+                course_data = request.form.to_dict()
+                course_data['active'] = True if course_data['active'].lower() == 'true' else False
+                set_course(course_data)
+                response_json['items'] = fetch_courses(current_user)
+                response_json['status'] = 200
+                response_json['message'] = 'ok'
     return jsonify(response_json)
 
 
@@ -228,7 +241,143 @@ def delete_manage_detail(current_user, manage_type, object_id):
     }
     if 'admin' in current_user['roles']:
         if 'courses' in manage_type:
+            video_info = fetch_videos(object_id, current_user['roles'])
+            if video_info:
+                file_name_list = [{"Key": i['video_path']} for i in video_info]
+                vp = VideoProvider()
+                vp.delete_videos(file_name_list)
+                # [{"Key": "text/test7.txt"}, {"Key": "text/test8.txt"}]
             delete_course(object_id)
             response_json['status'] = 200
             response_json['message'] = 'ok'
     return jsonify(response_json)
+
+
+@app.route('/videos/<video_id>', methods=['PUT'])
+@token_required_json
+def update_video(current_user, video_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+        "items": []
+    }
+    if 'admin' in current_user['roles']:
+        if not request.form['title'] or not request.form['description'] or not request.form['active']:
+            response_json['message'] = 'Field is missing.'
+        else:
+            video_data = {
+                'active': request.form['active'],
+                'description': request.form['description'],
+                'title': request.form['title']
+            }
+
+            video_data['active'] = True if video_data['active'].lower() == 'true' else False
+            update_video_db(video_id, video_data)
+            response_json['items'] = fetch_videos(request.form['course_id'], current_user['roles'])
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+
+    return jsonify(response_json)
+
+
+@app.route('/videos/<video_id>', methods=['DELETE'])
+@token_required_json
+def delete_video(current_user, video_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    if 'admin' in current_user['roles']:
+        video_info = fetch_video_by_id(video_id)
+        if video_info:
+            vp = VideoProvider()
+            vp.delete_video(video_info['video_path'])
+            delete_video_db(video_id)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+
+    return jsonify(response_json)
+
+
+@app.route('/videos')
+@token_required_redirect
+def get_video(current_user):
+    if 'admin' in current_user['roles'] or 'staff' in current_user['roles']:
+        return render_template('upload_video.html', user_info=current_user, course_list=[{"id": i['_id'], "title": i['title']} for i in fetch_courses(current_user)])
+    else:
+        return redirect('/')
+
+
+@app.route('/generate-presigned-url', methods=['POST'])
+@token_required_json
+def generate_presigned_url(current_user):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    if 'admin' in current_user['roles'] or 'staff' in current_user['roles']:
+        vp = VideoProvider()
+        response_json['presigned_object'] = vp.generate_pre_signed_url(
+            f'{fetch_course(request.form["course"], current_user["roles"])[0]["title"].replace("/", "").lower()}/{request.form["title"].replace("/", "")}.{request.form["file_name"].split(".")[-1]}')
+        response_json['message'] = 'ok'
+        response_json['status'] = 200
+    else:
+        response_json['message'] = 'Unauthorized'
+        response_json['status'] = 401
+    return jsonify(response_json)
+
+
+@app.route('/videos', methods=['POST'])
+@token_required_json
+def post_video(current_user):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    if 'admin' in current_user['roles'] or 'staff' in current_user['roles']:
+        if not request.form['course'] or not request.form['title'] or not request.form['description'] or not request.form['file_name']:
+            response_json = {
+                'status': 404,
+                'message': 'Field is missing.'
+            }
+        else:
+            # vp = VideoProvider()
+            # response_json['presigned_object'] = vp.generate_pre_signed_url(
+            #     f'{fetch_course(request.form["course"], current_user["roles"])[0]["title"].replace("/", "").lower()}/{request.form["title"].replace("/", "")}.{request.form["file_name"].split(".")[-1]}')
+            video_info = {
+                'title': request.form['title'],
+                'description': request.form['description'],
+                'video_path': f'{fetch_course(request.form["course"], current_user["roles"])[0]["title"].replace("/", "").lower()}/{request.form["title"].replace("/", "")}.{request.form["file_name"].split(".")[-1]}',
+                'active': True
+            }
+            insert_video(request.form['course'], video_info)
+            response_json['status'] = 200
+            response_json['message'] = 'ok'
+    else:
+        response_json['message'] = 'Unauthorized'
+        response_json['status'] = 401
+    return jsonify(response_json)
+
+
+@app.errorhandler(403)
+def forbidden(e):
+    return jsonify({
+        "message": "Forbidden",
+        "error": str(e),
+        "data": None
+    }), 403
+
+
+@app.errorhandler(404)
+def forbidden(e):
+    return jsonify({
+        "message": "Endpoint Not Found",
+        "error": str(e),
+        "data": None
+    }), 404
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')

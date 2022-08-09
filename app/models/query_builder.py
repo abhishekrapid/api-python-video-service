@@ -42,7 +42,7 @@ def fetch_user(user_id):
 def fetch_courses(user_data):
     db = client['courses']
     info = db['course']
-    if 'admin' in user_data['roles']:
+    if 'admin' in user_data['roles'] or 'staff' in user_data['roles']:
         query = {}
     else:
         query = {
@@ -121,7 +121,8 @@ def fetch_videos(course_id, roles):
                 "video_path": 1,
                 "active": 1,
                 "description": 1,
-                "createdAt": 1
+                "createAt": 1,
+                "updateAt": 1
             }
         )
     )
@@ -179,3 +180,51 @@ def delete_course(course_id):
     db = client['courses']
     info = db['course']
     info.delete_one({'_id': ObjectId(course_id)})
+    db2 = client['courses']
+    info2 = db['course_detail']
+    info2.delete_many(
+        {
+            'course_id': course_id
+        }
+    )
+
+
+def update_video_db(video_id, video_data):
+    db = client['courses']
+    info = db['course_detail']
+    video_data['updateAt'] = datetime.now()
+    info.update_one(
+        {
+            '_id': ObjectId(video_id)
+        },
+        {
+            "$set": video_data
+        }
+    )
+
+
+def delete_video_db(video_id):
+    db = client['courses']
+    info = db['course_detail']
+    info.delete_one(
+        {'_id': ObjectId(video_id)}
+    )
+
+
+def fetch_video_by_id(video_id):
+    db = client['courses']
+    info = db['course_detail']
+    return info.find_one(
+        {
+            '_id': ObjectId(video_id)
+        }
+    )
+
+
+def insert_video(course_id, data):
+    db = client['courses']
+    info = db['course_detail']
+    data['course_id'] = course_id
+    data['createAt'] = datetime.now()
+    data['updateAt'] = datetime.now()
+    info.insert_one(data)

@@ -18,7 +18,7 @@
                     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                         <li><a href="/" class="nav-link px-2 link-dark">Home</a></li>
                         {% if 'admin' in user_info.roles %}
-                            <li><a href="/manage" class="nav-link px-2 link-dark">Manage Dashboard</a></li>
+                            <li><a href="/admin" class="nav-link px-2 link-dark">Manage Dashboard</a></li>
 <!--                            <div class="dropdown">-->
 <!--                                <a class="d-flex align-items-center col-lg-4 mb-2 mb-lg-0 link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">-->
 <!--                                    Manage User-->
@@ -32,7 +32,7 @@
 <!--                            </div>-->
                         {% endif %}
                         {% if 'staff' in user_info.roles  or 'admin' in user_info.roles %}
-                            <li><a href="/video_upload" class="nav-link px-2 link-dark">Upload Video</a></li>
+                            <li><a href="/videos" class="nav-link px-2 link-dark">Upload Video</a></li>
                         {% endif %}
                     </ul>
                     <div class="dropdown text-end">

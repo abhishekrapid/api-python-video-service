@@ -7,51 +7,49 @@
     <body>
         {% include '/header.html' %}
         <!-- Modal -->
-        <div class="modal fade" id="managePopup" tabindex="-1" role="dialog" aria-labelledby="managePopupLabel" aria-hidden="true">
-            <div class="modal-dialog " role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="managePopupLongTitle">Modal title</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" id="manage_popup_body">
+<!--        <div class="modal fade" id="managePopup" tabindex="-1" role="dialog" aria-labelledby="managePopupLabel" aria-hidden="true">-->
+<!--            <div class="modal-dialog " role="document">-->
+<!--                <div class="modal-content">-->
+<!--                    <div class="modal-header">-->
+<!--                        <h5 class="modal-title" id="managePopupLongTitle">Modal title</h5>-->
+<!--                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="modal-body" id="manage_popup_body">-->
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary modalPopupSaveButton">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-<!--        &lt;!&ndash; Button trigger modal &ndash;&gt;-->
-<!--        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">-->
-<!--          Launch demo modal-->
-<!--        </button>-->
-
-<!--        &lt;!&ndash; Modal &ndash;&gt;-->
-<!--        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">-->
-<!--          <div class="modal-dialog" role="document">-->
-<!--            <div class="modal-content">-->
-<!--              <div class="modal-header">-->
-<!--                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>-->
-<!--                <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
-<!--                  <span aria-hidden="true">&times;</span>-->
-<!--                </button>-->
-<!--              </div>-->
-<!--              <div class="modal-body">-->
-<!--                ...-->
-<!--              </div>-->
-<!--              <div class="modal-footer">-->
-<!--                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-<!--                <button type="button" class="btn btn-primary">Save changes</button>-->
-<!--              </div>-->
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--                        <button type="button" class="btn btn-primary modalPopupSaveButton">Save</button>-->
+<!--                    </div>-->
+<!--                </div>-->
 <!--            </div>-->
-<!--          </div>-->
 <!--        </div>-->
+
+<!-- Button trigger modal -->
+<!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">-->
+<!--  Launch demo modal-->
+<!--</button>-->
+
+<!-- Modal -->
+<div class="modal fade" id="managePopup" tabindex="-1" aria-labelledby="managePopupLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="managePopupLongTitle">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="manage_popup_body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary modalPopupSaveButton">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 
         <div class="container mt-3">
             <h2 style="text-align:center;">Admin Dashboard</h2>
@@ -178,7 +176,7 @@
 
                             body_div += `
                             <tr id="tr_${data['items'][i]['_id']}">
-                                <td scope="row">${data['items'][i]['_id']}</td>
+                                <td scope="row"><a class="video_data" style="cursor:pointer;" data-id="${data['items'][i]['_id']}">${data['items'][i]['_id']}</a></td>
                                 <td scope="row">${data['items'][i]['category']}</td>
                                 <td scope="row">${data['items'][i]['title']}</td>
                                 <td scope="row">${data['items'][i]['description']}</td>
@@ -202,7 +200,7 @@
                     body_div = `
                         <h4>Something went wrong.</h4>
                     `
-                    console.log('something went wrong.');
+                    location. reload();
                     $(`#change_div`).empty().append(body_div);
                 }
             });
@@ -303,6 +301,7 @@
                     console.table(data);
                 },
                 error: function (data){
+                    location. reload();
                     alert('Something went wrong.');
                 },
             });
@@ -369,6 +368,10 @@
         });
 
         $(document).on("click", "#add_course_button", function (event) {
+            if ($('#categories').val() == '' || $('#title').val() == '' || $('#Description').val() == ''){
+                alert('Please fill the missing field.');
+                return false;
+            }
             var form_data = new FormData();
             form_data.append("category", $('#categories').val());
             form_data.append("title", $(`#title`).val());
@@ -405,7 +408,7 @@
                     for(var i=0; i<data['items'].length; i++){
                         body_div += `
                             <tr id="tr_${data['items'][i]['_id']}">
-                                <td scope="row">${data['items'][i]['_id']}</td>
+                                <td scope="row"><a class="video_data" style="cursor:pointer;" data-id="${data['items'][i]['_id']}">${data['items'][i]['_id']}</a></td>
                                 <td scope="row">${data['items'][i]['category']}</td>
                                 <td scope="row">${data['items'][i]['title']}</td>
                                 <td scope="row">${data['items'][i]['description']}</td>
@@ -428,7 +431,7 @@
                     body_div = `
                         <h4>Something went wrong.</h4>
                     `
-                    console.log('something went wrong.');
+                    location. reload();
                     $(`#change_div`).empty().append(body_div);
                 }
             });
@@ -499,6 +502,10 @@
         });
 
         $(document).on("click", "#update_course_button", function (event) {
+            if ($('#categories').val() == '' || $('#title').val() == '' || $('#Description').val() == ''){
+                alert('Please fill the missing field.');
+                return false;
+            }
             $('#managePopup').modal('hide');
             var form_data = new FormData();
             form_data.append("categories", $('#categories').val());
@@ -535,7 +542,7 @@
                     for(var i=0; i<data['items'].length; i++){
                         body_div += `
                             <tr id="tr_${data['items'][i]['_id']}">
-                                <td scope="row">${data['items'][i]['_id']}</td>
+                                <td scope="row"><a class="video_data" style="cursor:pointer;" data-id="${data['items'][i]['_id']}">${data['items'][i]['_id']}</a></td>
                                 <td scope="row">${data['items'][i]['category']}</td>
                                 <td scope="row">${data['items'][i]['title']}</td>
                                 <td scope="row">${data['items'][i]['description']}</td>
@@ -558,7 +565,7 @@
                     body_div = `
                         <h4>Something went wrong.</h4>
                     `
-                    console.log('something went wrong.');
+                    location. reload();
                     $(`#change_div`).empty().append(body_div);
                 },
             });
@@ -590,24 +597,209 @@
                     $(`#tr_${$('#course_id').val()}`).remove();
                 },
                 error: function (data){
+                    location. reload();
+                    alert('Something went wrong.');
+                },
+            });
+        });
+
+        $(document).on("click", ".video_data", function (event) {
+            var course_id = $(this).data("id");
+            $.ajax({
+                url: `/courses/${course_id}/videos`  , // point to server-side URL
+                type: 'GET',
+                success: function (data) {
+                    body_div = `
+                        <h3 style="text-align:center;">Videos</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Active</th>
+                                    <th scope="col">Video Path</th>
+                                    <th scope="col">CreateAt</th>
+                                    <th scope="col">UpdateAt</th>
+                                    <th scope="col" colspan="2">Action</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                    `
+                    if(data['items'].length == 0){
+                        body_div += `<tr>
+                            <td colspan="8" align="center">No video available</td>
+                        </tr>`
+                    }
+                    else{
+                        for(var i=0; i<data['items'].length; i++){
+                            body_div += `
+                                <tr id="tr_${data['items'][i]['_id']}">
+                                    <td scope="row">${data['items'][i]['_id']}</td>
+                                    <td scope="row">${data['items'][i]['title']}</td>
+                                    <td scope="row">${data['items'][i]['description']}</td>
+                                    <td scope="row">${data['items'][i]['active']}</td>
+                                    <td scope="row">${data['items'][i]['video_path']}</td>
+                                    <td scope="row">${data['items'][i]['createAt']}</td>
+                                    <td scope="row">${data['items'][i]['updateAt']}</td>
+                                    <td scope="row"><a class="edit-video" style="cursor: pointer;" data-course_id="${course_id}" data-id="${data['items'][i]['_id']}" data-title="${data['items'][i]['title']}" data-description="${data['items'][i]['description']}" data-active="${data['items'][i]['active']}" data-video_path="${data['items'][i]['video_path']}"><i class="fas fa-pen"></i></a></td>
+                                    <td scope="row"><a class="delete-video" style="cursor: pointer; color:red;" data-id="${data['items'][i]['_id']}"><i class="fas fa-trash"></i></a></td>
+                                </tr>`
+                        }
+                    }
+                    body_div += `
+                            </tbody>
+                        </table>
+                    `
+                    $(`#change_div`).empty().append(body_div);
+                },
+                error: function (data){
+                    body_div = `
+                        <h4>Something went wrong.</h4>
+                    `
+                    location. reload();
+                    $(`#change_div`).empty().append(body_div);
+                },
+            });
+        });
+
+        $(document).on("click", ".edit-video", function (event) {
+            $('#managePopupLongTitle').html('Update the video information.');
+            body_div = `
+                <input type="hidden" id="video_id" value="${$(this).data('id')}" readonly>
+                <input type="hidden" id="course_id" value="${$(this).data('course_id')}" readonly>
+                <div class="form-group">
+                    <label for="title" class="col-form-label">Title:</label>
+                    <input type="text" class="form-control" id="title" value="${$(this).data('title')}">
+                </div>
+                <div class="form-group">
+                    <label for="description" class="col-form-label">Description:</label>
+                    <input type="text" class="form-control" id="description" value="${$(this).data('description')}">
+                </div>
+                <label for="active" class="col-form-label">Active:</label>
+                <select id="active">
+                    <option value="true">On</option>
+                    <option value="false">OFF</option>
+                </select>
+<!--                    <input type="text" class="form-control" id="active" value="${$(this).data('active')}">-->
+                <div class="form-group">
+                    <label for="cover-image" class="col-form-label">Video path:</label>
+                    <input type="text" class="form-control" id="cover-image" value="${$(this).data('video_path')}" readonly>
+                </div>
+
+            `
+            $('.modalPopupSaveButton').removeAttr('id');
+            $('.modalPopupSaveButton').html('Update');
+            $('.modalPopupSaveButton').attr('id', 'update_video_button');
+            $('#manage_popup_body').empty().append(body_div);
+            $('#active').val($(this).data('active').toString());
+            $('#managePopup').modal('show');
+        });
+
+        $(document).on("click", "#update_video_button", function (event) {
+            if ($('#title').val() == ''){
+                alert('Please fill the missing field.');
+                return false;
+            }
+            $('#managePopup').modal('hide');
+            var form_data = new FormData();
+            form_data.append("title", $('#title').val());
+            form_data.append("description", $('#description').val());
+            form_data.append("active", $('#active').val());
+            form_data.append("course_id", $('#course_id').val())
+            $.ajax({
+                url: `/videos/${$('#video_id').val()}` , // point to server-side URL
+                cache: false,
+                contentType: false,
+                processData: false,
+                data:form_data,
+                type: 'PUT',
+                success: function (data) {
+                    body_div = `
+                        <h3 style="text-align:center;">Videos</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Active</th>
+                                    <th scope="col">Video Path</th>
+                                    <th scope="col">CreateAt</th>
+                                    <th scope="col">UpdateAt</th>
+                                    <th scope="col" colspan="2">Action</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                    `
+                    if(data['items'].length == 0){
+                        body_div += `<tr>
+                            <td colspan="8" align="center">No video available</td>
+                        </tr>`
+                    }
+                    else{
+                        for(var i=0; i<data['items'].length; i++){
+                            body_div += `
+                                <tr id="tr_${data['items'][i]['_id']}">
+                                    <td scope="row">${data['items'][i]['_id']}</td>
+                                    <td scope="row">${data['items'][i]['title']}</td>
+                                    <td scope="row">${data['items'][i]['description']}</td>
+                                    <td scope="row">${data['items'][i]['active']}</td>
+                                    <td scope="row">${data['items'][i]['video_path']}</td>
+                                    <td scope="row">${data['items'][i]['createAt']}</td>
+                                    <td scope="row">${data['items'][i]['updateAt']}</td>
+                                    <td scope="row"><a class="edit-video" style="cursor: pointer;" data-course_id="${course_id}" data-id="${data['items'][i]['_id']}" data-title="${data['items'][i]['title']}" data-description="${data['items'][i]['description']}" data-active="${data['items'][i]['active']}" data-video_path="${data['items'][i]['video_path']}"><i class="fas fa-pen"></i></a></td>
+                                    <td scope="row"><a class="delete-video" style="cursor: pointer; color:red;" data-id="${data['items'][i]['_id']}"><i class="fas fa-trash"></i></a></td>
+                                </tr>`
+                        }
+                    }
+                    body_div += `
+                            </tbody>
+                        </table>
+                    `
+                    $(`#change_div`).empty().append(body_div);
+                },
+                error: function (data){
+                    body_div = `
+                        <h4>Something went wrong.</h4>
+                    `
+                    location. reload();
+                    $(`#change_div`).empty().append(body_div);
+                },
+            });
+        });
+
+        $(document).on("click", ".delete-video", function (event) {
+            var video_id = $(this).data("id");
+            $('#managePopupLongTitle').html('Delete the video?');
+            body_div = `
+                <input type="hidden" id="video_id" value="${video_id}" readonly>
+                <p>This action will remove the video from our database. Would you like to continue?</p>
+            `
+            $('.modalPopupSaveButton').removeAttr('id');
+            $('.modalPopupSaveButton').html('Delete');
+            $('.modalPopupSaveButton').attr('id', 'delete_video_button');
+            $('#manage_popup_body').empty().append(body_div);
+            $('#managePopup').modal('show');
+        });
+
+        $(document).on("click", "#delete_video_button", function (event) {
+            $('#managePopup').modal('hide');
+            $.ajax({
+                url: `/videos/${$('#video_id').val()}` , // point to server-side URL
+                cache: false,
+                contentType: false,
+                processData: false,
+                type: 'DELETE',
+                success: function (data) {
+
+                    $(`#tr_${$('#video_id').val()}`).remove();
+                },
+                error: function (data){
+                    location. reload();
                     alert('Something went wrong.');
                 },
             });
         });
     </script>
 </html>
-
-<!--
-requirement.txt
-boto3==1.24.37
-
-.env
-aws_storage_name = s3
-aws_region_name=ap-south-1
-aws_access_key_id=AKIATEBJLGP3F5W2OMHZ
-aws_secret_access_key=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
-aws_bucket=rapid-video-service
-video_provider=aws
-
-
--->
