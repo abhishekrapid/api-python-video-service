@@ -543,11 +543,11 @@
             }
             $('#managePopup').modal('hide');
             var form_data = new FormData();
-            form_data.append("categories", $('#categories').val());
+            form_data.append("category", $('#categories').val());
             form_data.append("title", $('#title').val());
             form_data.append("description", $('#description').val());
             form_data.append("active", $('#active').val());
-            form_data.append("cover-image", $('#cover-image').val());
+            form_data.append("cover_image", $('#cover-image').val());
             $.ajax({
                 url: `/courses/${$('#course_id').val()}` , // point to server-side URL
                 cache: false,
