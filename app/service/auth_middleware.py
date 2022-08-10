@@ -57,7 +57,7 @@ def token_required_json(f):
         # return 401 if token is not passed
         if not token:
             session.clear()
-            return jsonify({'message': 'Token is missing !!'}), 401
+            return jsonify({'message': 'Token is missing !!', 'status': 401}), 401
 
         try:
             # decoding the payload to fetch the stored details
@@ -66,7 +66,8 @@ def token_required_json(f):
             if current_user is None:
                 session.clear()
                 return jsonify({
-                    'message': 'Unauthorized'
+                    'message': 'Unauthorized',
+                    'status': 401
                 }), 401
             if not current_user["active"]:
                 session.clear()
@@ -75,7 +76,8 @@ def token_required_json(f):
         except:
             session.clear()
             return jsonify({
-                'message': 'Token is invalid !!'
+                'message': 'Token is invalid !!',
+                'status': 401
             }), 401
         # returns the current logged in users contex to the routes
         return f(current_user, *args, **kwargs)

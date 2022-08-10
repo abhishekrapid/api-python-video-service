@@ -198,7 +198,7 @@ def update_manage_detail(current_user, manage_type, object_id):
                 response_json['status'] = 200
                 response_json['message'] = 'ok'
         elif 'courses' in manage_type:
-            if not request.form['categories'] or not request.form['title'] or not request.form['active'] or not request.form['description']:
+            if not request.form['category'] or not request.form['title'] or not request.form['active'] or not request.form['description']:
                 response_json['message'] = 'Field is missing.'
             else:
                 course_data = request.form.to_dict()
