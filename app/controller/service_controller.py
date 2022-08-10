@@ -10,7 +10,8 @@ from extensions import (
     jsonify,
     jwt,
     datetime,
-    timedelta
+    timedelta,
+    cross_origin
 )
 from app.models.query_builder import (
     fetch_user,
@@ -45,6 +46,7 @@ app.register_blueprint(google_login, url_prefix='/googlelogin')
 
 
 @api.route('/')
+@cross_origin()
 @token_required_redirect
 def home(current_user):
     if current_user:
@@ -288,7 +290,7 @@ def delete_video(current_user, video_id):
         "message": "Something went wrong.",
     }
     if 'admin' in current_user['roles']:
-        video_info = fetch_video_by_id(video_id)
+        video_info = fetch_video_by_id(video_id, current_user['roles'])
         if video_info:
             vp = VideoProvider()
             vp.delete_video(video_info['video_path'])
@@ -306,6 +308,23 @@ def get_video(current_user):
         return render_template('upload_video.html', user_info=current_user, course_list=[{"id": i['_id'], "title": i['title']} for i in fetch_courses(current_user)])
     else:
         return redirect('/')
+
+
+@app.route('/videos/<video_id>')
+@token_required_json
+def get_video_url(current_user, video_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    video_info = fetch_video_by_id(video_id, current_user['roles'])
+    if video_info:
+        vp = VideoProvider()
+        response_json['video_url'] = vp.generate_url(video_info['video_path'])
+        response_json['status'] = 200
+        response_json['message'] = 'ok'
+
+    return jsonify(response_json)
 
 
 @app.route('/generate-presigned-url', methods=['POST'])

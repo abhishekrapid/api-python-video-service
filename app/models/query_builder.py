@@ -211,13 +211,20 @@ def delete_video_db(video_id):
     )
 
 
-def fetch_video_by_id(video_id):
+def fetch_video_by_id(video_id, roles):
     db = client['courses']
     info = db['course_detail']
-    return info.find_one(
-        {
+    if 'admin' in roles:
+        query = {
             '_id': ObjectId(video_id)
         }
+    else:
+        query = {
+            'course_id': ObjectId(video_id),
+            'active': True
+        }
+    return info.find_one(
+        query
     )
 
 
