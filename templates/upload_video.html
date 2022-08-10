@@ -65,6 +65,7 @@
             form_data.append("file_name", document.getElementById('file').files[0].name);
             $.ajax({
                 url: '/generate-presigned-url' , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -103,6 +104,7 @@
                                 form_data.append("file_name", document.getElementById('file').files[0].name);
                                 $.ajax({
                                     url: '/videos' , // point to server-side URL
+                                    headers: {"Authentication": "{{session.current_user_token}}"},
                                     cache: false,
                                     contentType: false,
                                     processData: false,

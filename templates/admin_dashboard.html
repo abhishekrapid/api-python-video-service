@@ -109,10 +109,12 @@
     </body>
 
     <script>
+
         $(document).on("click", ".manage_select", function (event) {
             var manage_type = $(this).data("type");
             $.ajax({
                 url: `/${manage_type}`,
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 type: 'GET',
                 success: function (data) {
                     console.log(data);
@@ -292,6 +294,7 @@
             $(`#roles_${$('#user_id').val()}`).html(roles_data);
             $.ajax({
                 url: `/users/${$('#user_id').val()}` , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -416,6 +419,7 @@
             $('#managePopup').modal('hide');
             $.ajax({
                 url: '/courses' , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -550,6 +554,7 @@
             form_data.append("cover_image", $('#cover-image').val());
             $.ajax({
                 url: `/courses/${$('#course_id').val()}` , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -623,6 +628,7 @@
         $(document).on("click", "#delete_course_button", function (event) {
             $.ajax({
                 url: `/courses/${$('#course_id').val()}` , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -642,6 +648,7 @@
             var course_id = $(this).data("id");
             $.ajax({
                 url: `/courses/${course_id}/videos`  , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 type: 'GET',
                 success: function (data) {
                     body_div = `
@@ -744,6 +751,7 @@
             form_data.append("course_id", $('#course_id').val())
             $.ajax({
                 url: `/videos/${$('#video_id').val()}` , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
@@ -822,6 +830,7 @@
             $('#managePopup').modal('hide');
             $.ajax({
                 url: `/videos/${$('#video_id').val()}` , // point to server-side URL
+                headers: {"Authentication": "{{session.current_user_token}}"},
                 cache: false,
                 contentType: false,
                 processData: false,
