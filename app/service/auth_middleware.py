@@ -50,10 +50,9 @@ def token_required_json(f):
     def decorated(*args, **kwargs):
         token = None
         # jwt is passed in the request header
-        # if 'X-Access-Token' in request.headers:
-        #     token = request.headers['X-Access-Token']
-        if 'current_user_token' in session:
-            token = session['current_user_token']
+        if 'X-Access-Token' in request.headers:
+            token = request.headers['Authentication']
+        #    token = session['current_user_token']
         # return 401 if token is not passed
         if not token:
             session.clear()
