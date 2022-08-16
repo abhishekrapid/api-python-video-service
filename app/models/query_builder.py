@@ -268,3 +268,34 @@ def search_courses_db(keyword, roles, limit):
             }
         ).limit(limit)
     )
+
+
+def filter_courses_db(filter, roles):
+    db = client['courses']
+    info = db['course']
+    if 'admin' in roles:
+        query = {
+            "category": {"$in": filter.split(',')}
+        }
+    else:
+        query = {
+            "category": {"$in": filter.split(',')},
+            'active': True
+        }
+    return list(
+        info.find(
+            query,
+            {
+                "_id": {
+                    "$toString": "$_id"
+                },
+                "title": 1,
+                "category": 1,
+                "active": 1,
+                "description": 1,
+                "cover_image": 1,
+                "createAt": 1,
+                "updateAt": 1
+            }
+        )
+    )

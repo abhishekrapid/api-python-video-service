@@ -28,7 +28,8 @@ from app.models.query_builder import (
     delete_video_db,
     fetch_video_by_id,
     insert_video,
-    search_courses_db
+    search_courses_db,
+    filter_courses_db
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -425,6 +426,19 @@ def search_courses(current_user):
         "message": "Something went wrong.",
     }
     response_json['items'] = search_courses_db(request.args['query'], current_user['roles'], request.args.get('limit', 20))
+    response_json['status'] = 200
+    response_json['message'] = 'ok'
+    return jsonify(response_json)
+
+
+@app.route('/filter')
+@token_required_json
+def filter_courses(current_user):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    response_json['items'] = filter_courses_db(request.args['query'], current_user['roles'])
     response_json['status'] = 200
     response_json['message'] = 'ok'
     return jsonify(response_json)
