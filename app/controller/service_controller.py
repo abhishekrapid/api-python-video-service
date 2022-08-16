@@ -78,7 +78,7 @@ def google_login():
         token = jwt.encode({
             'id': user_info['id'],
             'roles': fetch_user(user_info['id'])['roles'],
-            'exp': datetime.utcnow() + timedelta(hours=1)
+            'exp': datetime.utcnow() + timedelta(hours=24)
         }, app.config['SECRET_KEY'], "HS256")
         print(token)
         session['current_user_token'] = token
@@ -103,7 +103,7 @@ def google_callback():
         token = jwt.encode({
             'id': user_info['id'],
             'roles': fetch_user(user_info['id'])['roles'],
-            'exp': datetime.utcnow() + timedelta(hours=1)
+            'exp': datetime.utcnow() + timedelta(hours=24)
         }, app.config['SECRET_KEY'], "HS256")
         session['current_user_token'] = token
         return redirect(f"{os.getenv('success_url')}?token={token}")
