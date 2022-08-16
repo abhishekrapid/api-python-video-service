@@ -238,7 +238,7 @@ def insert_video(course_id, data):
     info.insert_one(data)
 
 
-def search_courses_db(keyword, roles):
+def search_courses_db(keyword, roles, limit):
     rgx = re.compile(f'.*{keyword}.*', re.IGNORECASE)
     db = client['courses']
     info = db['course']
@@ -266,5 +266,5 @@ def search_courses_db(keyword, roles):
                 "createAt": 1,
                 "updateAt": 1
             }
-        )
+        ).limit(limit)
     )

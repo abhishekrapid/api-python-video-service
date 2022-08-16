@@ -311,6 +311,13 @@ def get_video(current_user):
         return redirect('/')
 
 
+def video_exists_server(video_info):
+    status = False
+    if video_info.get('server_storage'):
+        status = True
+    return status
+
+
 @app.route('/videos/<video_id>')
 @token_required_json
 def get_video_url(current_user, video_id):
@@ -320,7 +327,8 @@ def get_video_url(current_user, video_id):
         }
     video_info = fetch_video_by_id(video_id, current_user['roles'])
     if video_info:
-        if video_info.get('server_storage'):
+        status = video_exists_server(video_info)
+        if status:
             response_json['server_storage'] = True
             response_json['video_url'] = video_info['server_path']
         else:
@@ -409,14 +417,14 @@ def post_video(current_user):
     return jsonify(response_json)
 
 
-@app.route('/search/<keyword>')
+@app.route('/search')
 @token_required_json
-def search_courses(current_user, keyword):
+def search_courses(current_user):
     response_json = {
         "status": 404,
         "message": "Something went wrong.",
     }
-    response_json['items'] = search_courses_db(keyword, current_user['roles'])
+    response_json['items'] = search_courses_db(request.args['query'], current_user['roles'], request.args.get('limit', 20))
     response_json['status'] = 200
     response_json['message'] = 'ok'
     return jsonify(response_json)
