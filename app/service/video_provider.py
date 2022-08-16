@@ -38,3 +38,10 @@ class VideoProvider:
                                                            Params={'Bucket': os.getenv('aws_bucket'), 'Key': file_name},
                                                            ExpiresIn=50)
 
+    def download_video_from_provider(self, file_name, server_path):
+        try:
+            self.provider_client.download_file(os.getenv('aws_bucket'), file_name, server_path)
+            return True
+        except Exception as e:
+            print(e)
+            return False

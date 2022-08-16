@@ -4,6 +4,7 @@ from extensions import (
     datetime
 )
 from bson.objectid import ObjectId
+import re
 
 
 client = pymongo.MongoClient(os.getenv('mongodb_endpoint'))
@@ -235,3 +236,35 @@ def insert_video(course_id, data):
     data['createAt'] = datetime.now()
     data['updateAt'] = datetime.now()
     info.insert_one(data)
+
+
+def search_courses_db(keyword, roles):
+    rgx = re.compile(f'.*{keyword}.*', re.IGNORECASE)
+    db = client['courses']
+    info = db['course']
+    if 'admin' in roles:
+        query = {
+            'title': rgx
+        }
+    else:
+        query = {
+            'title': rgx,
+            'active': True
+        }
+    return list(
+        info.find(
+            query,
+            {
+                "_id": {
+                    "$toString": "$_id"
+                },
+                "title": 1,
+                "category": 1,
+                "active": 1,
+                "description": 1,
+                "cover_image": 1,
+                "createAt": 1,
+                "updateAt": 1
+            }
+        )
+    )

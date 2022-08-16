@@ -27,7 +27,8 @@ from app.models.query_builder import (
     update_video_db,
     delete_video_db,
     fetch_video_by_id,
-    insert_video
+    insert_video,
+    search_courses_db
 )
 from app.service.auth_middleware import token_required_redirect, token_required_json
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -316,15 +317,45 @@ def get_video_url(current_user, video_id):
     response_json = {
         "status": 404,
         "message": "Something went wrong.",
-    }
+        }
     video_info = fetch_video_by_id(video_id, current_user['roles'])
     if video_info:
-        vp = VideoProvider()
-        response_json['video_url'] = vp.generate_url(video_info['video_path'])
+        if video_info.get('server_storage'):
+            response_json['server_storage'] = True
+            response_json['video_url'] = video_info['server_path']
+        else:
+            vp = VideoProvider()
+            response_json['server_storage'] = False
+            response_json['video_url'] = vp.generate_url(video_info['video_path'])
         response_json['status'] = 200
         response_json['message'] = 'ok'
 
     return jsonify(response_json)
+
+
+@app.route('/download/<video_id>')
+@token_required_json
+def download_video(current_user, video_id):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    video_info = fetch_video_by_id(video_id, current_user['roles'])
+    vp = VideoProvider()
+    if not os.path.exists('static'):
+        os.mkdir('static')
+    if not os.path.exists('static/video_file'):
+        os.mkdir('static/video_file')
+    server_path = f'static/video_file/{video_info["video_path"]}'
+    status = vp.download_video_from_provider(video_info['video_path'], server_path)
+    if status:
+        video_data = {
+            'server_storage': True,
+            'server_path': server_path
+        }
+        update_video_db(video_id, video_data)
+        response_json['status'] = 200
+        response_json['message'] = 'ok'
 
 
 @app.route('/generate-presigned-url', methods=['POST'])
@@ -375,6 +406,19 @@ def post_video(current_user):
     else:
         response_json['message'] = 'Unauthorized'
         response_json['status'] = 401
+    return jsonify(response_json)
+
+
+@app.route('/search/<keyword>')
+@token_required_json
+def search_courses(current_user, keyword):
+    response_json = {
+        "status": 404,
+        "message": "Something went wrong.",
+    }
+    response_json['items'] = search_courses_db(keyword, current_user['roles'])
+    response_json['status'] = 200
+    response_json['message'] = 'ok'
     return jsonify(response_json)
 
 
