@@ -20,8 +20,11 @@ def token_required_redirect(f):
         token = None
         # if 'X-Access-Token' in request.headers:
         #     token = request.headers['X-Access-Token']
-        if 'current_user_token' in session:
-            token = session['current_user_token']
+        if 'Authentication' in session:
+            token = request.headers['Authentication']
+        if not token:
+            if 'current_user_token' in session:
+               token = session['current_user_token']
         if not token:
             session.clear()
             return redirect(os.getenv('failed_url'))
@@ -52,6 +55,9 @@ def token_required_json(f):
         # jwt is passed in the request header
         if 'Authentication' in request.headers:
             token = request.headers['Authentication']
+        if not token:
+            if 'current_user_token' in session:
+               token = session['current_user_token']
         #    token = session['current_user_token']
         # return 401 if token is not passed
         if not token:
