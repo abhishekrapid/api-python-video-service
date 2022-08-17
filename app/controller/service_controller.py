@@ -112,6 +112,7 @@ def google_callback():
 
 
 @api.route('/courses', methods=["GET"])
+@cross_origin()
 @token_required_json
 def get_courses(current_user):
     response_json = {
@@ -126,6 +127,7 @@ def get_courses(current_user):
 
 
 @app.route("/courses/<course_id>", methods=["GET"])
+@cross_origin()
 @token_required_json
 def get_course(current_user, course_id):
     response_json = {
@@ -140,6 +142,7 @@ def get_course(current_user, course_id):
 
 
 @app.route("/courses/<course_id>/videos", methods=["GET"])
+@cross_origin()
 @token_required_json
 def get_videos(current_user, course_id):
     response_json = {
@@ -419,6 +422,7 @@ def post_video(current_user):
 
 
 @app.route('/search')
+@cross_origin()
 @token_required_json
 def search_courses(current_user):
     response_json = {
@@ -432,6 +436,7 @@ def search_courses(current_user):
 
 
 @app.route('/filter')
+@cross_origin()
 @token_required_json
 def filter_courses(current_user):
     response_json = {
